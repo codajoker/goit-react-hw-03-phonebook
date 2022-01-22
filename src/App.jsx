@@ -15,15 +15,15 @@ class App extends Component {
         );
       })
     ) {
-      alert(`${data.name} is already in contacts`);
-    } else {
-      this.setState({
-        contacts: [
-          { name: data.name, id: nanoid(), number: data.number },
-          ...this.state.contacts,
-        ],
-      });
+      return alert(`${data.name} is already in contacts`);
     }
+
+    this.setState({
+      contacts: [
+        { name: data.name, id: nanoid(), number: data.number },
+        ...this.state.contacts,
+      ],
+    });
   };
   addFilter = (e) => {
     this.setState({ filter: e.target.value });
@@ -43,12 +43,14 @@ class App extends Component {
   };
   componentDidMount() {
     const local = localStorage.getItem("contacts");
+
     const parse = JSON.parse(local);
-    this.setState({ contacts: parse });
+    if (parse) {
+      this.setState({ contacts: parse });
+    }
   }
   componentDidUpdate(prevProps, prevState) {
     if (this.state.contacts !== prevState.contacts) {
-      console.log(123);
       localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
     }
   }
@@ -59,11 +61,15 @@ class App extends Component {
           <Form onSubmit={this.addContact} />
         </Section>
         <Section title="Contact">
-          <Filter onChange={this.addFilter}></Filter>
-          <ListContact
-            deleteContact={this.deleteContact}
-            contacts={this.findContact()}
-          ></ListContact>
+          {this.state.contacts && (
+            <>
+              <Filter onChange={this.addFilter}></Filter>
+              <ListContact
+                deleteContact={this.deleteContact}
+                contacts={this.findContact()}
+              ></ListContact>
+            </>
+          )}
         </Section>
       </>
     );
